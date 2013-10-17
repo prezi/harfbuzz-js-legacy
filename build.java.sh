@@ -31,7 +31,7 @@ export CXXFLAGS=${LDFLAGS}
 
 export INSTALL_DIR=$(pwd)/build
 
-#ugly way to fing jni.h automatically (with a chance that it will be int the sdk7)
+#ugly way to find jni.h automatically (with a chance that it will be int the sdk7)
 JNIHEADERS=`locate jni.h | grep 7 | head -n 1 | xargs dirname`
 
 
@@ -44,8 +44,4 @@ echo "JNIHEADERS=${JNIHEADERS}"
 ./configure --prefix=$INSTALL_DIR --disable-shared --enable-static && make clean >/dev/null && make -j && cp src/.libs/libharfbuzz.a build/harfbuzz.a
 
 echo "### compile wrapper"
-#gcc  -m32 -march=i386 -pipe -Os -no-cpp-precomp -c swig/build/cpp/harfbuzz_wrap.c -I ./src -I /System/Library/Frameworks/JavaVM.framework/Headers -o swig/build/cpp/lib/harfbuzz_wrap.o
-# -Wl,--add-stdcall-alias
-#echo "### link wrapper"
-#ld  build/harfbuzz.dylib swig/build/cpp/lib/harfbuzz_wrap.o -dylib -o build/libharfbuzz.so
 gcc  -I ./src -I $JNIHEADERS  -pipe -Os -no-cpp-precomp -shared -o swig/build/cpp/lib/harfbuzz_wrap.so swig/build/cpp/harfbuzz_wrap.c  build/harfbuzz.a

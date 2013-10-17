@@ -158,7 +158,7 @@ class ConfigureHarfbuzz extends DefaultTask {
 
 task configureHarfbuzz(type: ConfigureHarfbuzz) {
     dependsOn downloadEmscripten
-// We need to do this to build shared libs
+    // We need to do this to build shared libs
     host = "i386-linux"
 }
 
@@ -456,12 +456,12 @@ task testJs(type:Exec) {
 }
 
 task buildAll {
-//	dependsOn testJs
+	dependsOn testJs
 	dependsOn packJavaHarfbuzz
-//	dependsOn compileEmccProduction
-//	dependsOn compileEmccProductionUntyped
-//	dependsOn compileEmccDebug
-//	dependsOn compileEmccDebugUntyped
+	dependsOn compileEmccProduction
+	dependsOn compileEmccProductionUntyped
+	dependsOn compileEmccDebug
+	dependsOn compileEmccDebugUntyped
 }
 
 install {
@@ -490,6 +490,11 @@ artifacts {
 		type "js"
 		classifier "debug"
 	}
+        archives(compileEmccDebugUntyped.outputFile) {
+                name archivesBaseName
+                type "js"
+                classifier "untyped-debug"
+        }
 	archives(packJavaHarfbuzz) {
 		name archivesBaseName
 		type "zip"

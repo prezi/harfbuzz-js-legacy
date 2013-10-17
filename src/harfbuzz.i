@@ -28,11 +28,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad( JavaVM *vm, void *pvt ) {
     // storing the VM
     jvm = vm;
     fprintf( stdout, "* JNI_OnLoad called\n" );
-    // TEST CODE
-//    hb_bool_t res = CJNI_FUNC_hb_font_glyph_func (NULL, NULL, 234, 123, NULL, NULL);
-//    printf("\n%d\n", res);
-//    hb_position_t res2 = CJNI_FUNC_hb_font_glyph_h_advance_func (NULL, NULL, 234,  NULL);
-//    printf("\n%d\n", res2);
 
     return JNI_VERSION_1_6;
 }
@@ -47,7 +42,6 @@ hb_position_t CJNI_FUNC_hb_font_glyph_h_advance_func (hb_font_t *font, void *fon
     jclass cls;
     jmethodID mid;
     int getEnvStat;
-    printf("native CJNI_FUNC_hb_font_glyph_h_advance_func: %s\n",(char*) font_data);
     
      // double check it's all ok
     getEnvStat = (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_6);
@@ -58,7 +52,7 @@ hb_position_t CJNI_FUNC_hb_font_glyph_h_advance_func (hb_font_t *font, void *fon
 	}
     } else {
 	if (getEnvStat == JNI_OK) {
-	    printf("GetEnv OK");
+	    // getenv ok
 	} else {
 	    if (getEnvStat == JNI_EVERSION) {
 		printf( "GetEnv: version not supported");
@@ -103,7 +97,6 @@ hb_bool_t CJNI_FUNC_hb_font_glyph_func (hb_font_t *font, void *font_data, hb_cod
     jclass cls;
     jmethodID mid;
     int getEnvStat;
-    printf("native CJNI_FUNC_hb_font_glyph_func: %s\n", (char*) font_data);
     
      // double check it's all ok
     getEnvStat = (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_6);
@@ -114,7 +107,7 @@ hb_bool_t CJNI_FUNC_hb_font_glyph_func (hb_font_t *font, void *font_data, hb_cod
 	}
     } else {
 	if (getEnvStat == JNI_OK) {
-	    printf("GetEnv OK");
+	    // getenv ok
 	} else {
 	    if (getEnvStat == JNI_EVERSION) {
 		printf( "GetEnv: version not supported");
@@ -147,7 +140,6 @@ hb_bool_t CJNI_FUNC_hb_font_glyph_func (hb_font_t *font, void *font_data, hb_cod
     }
     jstring font_data_string = (*env)->NewStringUTF(env,(char*) font_data);
     jint ret = (*env)->CallStaticIntMethod(env, cls, mid, font_data_string, (jint) unicode);
-    // do we need to free string???
     *glyph = ((hb_codepoint_t) ret);
     (*jvm)->DetachCurrentThread(jvm);
     return ((hb_bool_t) (ret != MISSING_GLYPH_CODE));
@@ -157,7 +149,6 @@ hb_bool_t CJNI_FUNC_hb_font_glyph_func (hb_font_t *font, void *font_data, hb_cod
 void CJNI_hb_font_set_funcs (hb_font_t *font, hb_font_funcs_t *klass, char* font_data,  hb_destroy_func_t  destroy){
     char *font_data_copy = malloc(CJNI_ID_BUFFER_SIZE * sizeof(char)); 
     strncpy ( font_data_copy, font_data, CJNI_ID_BUFFER_SIZE - 1);
-    printf("native registered: %s\n", font_data_copy);
     hb_font_set_funcs (font, klass, (void*) font_data_copy, destroy);
 }
 
