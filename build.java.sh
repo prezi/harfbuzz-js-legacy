@@ -21,6 +21,10 @@ rm swig/build/cpp/lib/*
 echo "Generating JNI code with SWIG"
 swig -cpperraswarn -java -package com.prezi.harfbuzz -outdir swig/build/java/com/prezi/harfbuzz -o swig/build/cpp/harfbuzz_wrap.c -oh swig/build/cpp/harfbuzz_wrap.h src/harfbuzz.i
 
+cd swig/build/java
+find . -name "*.java" | xargs javac
+cd -
+
 if [ ! -x "./configure" ]; then
     ./autogen.sh
 fi

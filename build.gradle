@@ -217,7 +217,8 @@ task makeHarfbuzz() {
 	dependsOn configureHarfbuzz
 
 	doLast {
-		def proc = "emmake make all-recursive".execute()
+		def emmakePath = "tools/emscripten/emmake"
+		def proc = "${emmakePath} make all-recursive".execute()
 		proc.waitForProcessOutput(System.out, System.err)
 
 		if (proc.exitValue()) {
@@ -497,7 +498,7 @@ artifacts {
         }
 	archives(packJavaHarfbuzz) {
 		name archivesBaseName
-		type "zip"
+		type "harfbuzzJava"
 		classifier "java"
 	}
 
