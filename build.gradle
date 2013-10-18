@@ -44,7 +44,7 @@ configurations {
 
 clean << {
 	if (file("Makefile").exists()) {
-		def proc = "emmake make clean".execute()
+		def proc = "tools/emscripten/emmake make clean".execute()
 		proc.waitForProcessOutput(System.out, System.err)
 		if (proc.exitValue()) {
 			throw new RuntimeException("Emscripten clean failed")
@@ -135,7 +135,7 @@ class ConfigureHarfbuzz extends DefaultTask {
 
 	@TaskAction
 	void doConfigure() {
-		def commandLine = "tools/emscripten/emconfigure ./autogen.sh"
+		def commandLine = "tools/emscripten/emconfigure ./autogen.sh --disable-static --enable-shared"
 
 		if (host != null) {
 			commandLine += " --host " + host
@@ -203,6 +203,8 @@ task packJavaHarfbuzz(type: Zip){
 
     from fileTree("swig/build/java"),{
         include "**/*.java"
+        include "**/*.class"
+
     }
 
     from fileTree("swig/build/cpp/lib"),{
@@ -501,5 +503,4 @@ artifacts {
 		type "harfbuzzJava"
 		classifier "java"
 	}
-
 }
