@@ -67,5 +67,3 @@ build/
 .gradle/
 tools/
 node_modules/
-ar-lib
-test-driver
