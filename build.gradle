@@ -44,7 +44,7 @@ configurations {
 
 clean << {
 	if (file("Makefile").exists()) {
-		def proc = "emmake make clean".execute()
+		def proc = "tools/emscripten/emmake make clean".execute()
 		proc.waitForProcessOutput(System.out, System.err)
 		if (proc.exitValue()) {
 			throw new RuntimeException("Emscripten clean failed")
@@ -135,7 +135,7 @@ class ConfigureHarfbuzz extends DefaultTask {
 
 	@TaskAction
 	void doConfigure() {
-		def commandLine = "tools/emscripten/emconfigure ./autogen.sh"
+		def commandLine = "tools/emscripten/emconfigure ./autogen.sh --disable-static --enable-shared"
 
 		if (host != null) {
 			commandLine += " --host " + host
@@ -157,16 +157,70 @@ class ConfigureHarfbuzz extends DefaultTask {
 }
 
 task configureHarfbuzz(type: ConfigureHarfbuzz) {
-	dependsOn downloadEmscripten
-	// We need to do this to build shared libs
-	host = "i386-linux"
+    dependsOn downloadEmscripten
+    // We need to do this to build shared libs
+    host = "i386-linux"
 }
+
+class BuildHarfbuzzJava extends DefaultTask {
+
+    @InputFiles
+    List<File> inputFiles = [ ]
+
+    @OutputFiles
+    List<File> outputFiles = [ project.file("swig/build/cpp/lib/harfbuzz_wrap.so"), project.file("swig/build/java/com/prezi/harfbuzz/harfbuzz.java")]
+
+    String host
+
+	@TaskAction
+	void doConfigure() {
+		def commandLine = "./build.java.sh"
+
+		def proc = commandLine.execute()
+		proc.waitForProcessOutput(System.out, System.err)
+
+		if (proc.exitValue()) {
+			throw new RuntimeException("Java build failed")
+		}
+
+		for (outputFile in outputFiles) {
+			if (!outputFile.exists()) {
+				throw new RuntimeException("Java Build didn't create required file: " + outputFile)
+			}
+		}
+	}
+}
+
+task buildHarfbuzzJava(type: BuildHarfbuzzJava) {
+}
+
+
+
+task packJavaHarfbuzz(type: Zip){
+    baseName = "harfbuzzJava"
+    dependsOn buildHarfbuzzJava
+
+
+    from fileTree("swig/build/java"),{
+        include "**/*.java"
+        include "**/*.class"
+
+    }
+
+    from fileTree("swig/build/cpp/lib"),{
+        include "*.so"
+    }
+
+    destinationDir = project.file("swig/build")
+}
+
 
 task makeHarfbuzz() {
 	dependsOn configureHarfbuzz
 
 	doLast {
-		def proc = "emmake make all-recursive".execute()
+		def emmakePath = "tools/emscripten/emmake"
+		def proc = "${emmakePath} make all-recursive".execute()
 		proc.waitForProcessOutput(System.out, System.err)
 
 		if (proc.exitValue()) {
@@ -406,6 +460,7 @@ task testJs(type:Exec) {
 
 task buildAll {
 	dependsOn testJs
+	dependsOn packJavaHarfbuzz
 	dependsOn compileEmccProduction
 	dependsOn compileEmccProductionUntyped
 	dependsOn compileEmccDebug
@@ -438,9 +493,14 @@ artifacts {
 		type "js"
 		classifier "debug"
 	}
-	archives(compileEmccDebugUntyped.outputFile) {
+        archives(compileEmccDebugUntyped.outputFile) {
+                name archivesBaseName
+                type "js"
+                classifier "untyped-debug"
+        }
+	archives(packJavaHarfbuzz) {
 		name archivesBaseName
-		type "js"
-		classifier "untyped-debug"
+		type "harfbuzzJava"
+		classifier "java"
 	}
 }
