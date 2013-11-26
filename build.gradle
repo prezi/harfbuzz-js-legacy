@@ -459,12 +459,12 @@ task testJs(type:Exec) {
 }
 
 task buildAll {
-	dependsOn testJs
+//	dependsOn testJs
 	dependsOn packJavaHarfbuzz
-	dependsOn compileEmccProduction
-	dependsOn compileEmccProductionUntyped
-	dependsOn compileEmccDebug
-	dependsOn compileEmccDebugUntyped
+//	dependsOn compileEmccProduction
+//	dependsOn compileEmccProductionUntyped
+//	dependsOn compileEmccDebug
+//	dependsOn compileEmccDebugUntyped
 }
 
 install {
@@ -479,25 +479,25 @@ uploadArchives {
 }
 
 artifacts {
-	archives(compileEmccProduction.outputFile) {
-		name archivesBaseName
-		type "js"
-	}
-	archives(compileEmccProductionUntyped.outputFile) {
-		name archivesBaseName
-		type "js"
-		classifier "untyped"
-	}
-	archives(compileEmccDebug.outputFile) {
-		name archivesBaseName
-		type "js"
-		classifier "debug"
-	}
-        archives(compileEmccDebugUntyped.outputFile) {
-                name archivesBaseName
-                type "js"
-                classifier "untyped-debug"
-        }
+//	archives(compileEmccProduction.outputFile) {
+//		name archivesBaseName
+//		type "js"
+//	}
+//	archives(compileEmccProductionUntyped.outputFile) {
+//		name archivesBaseName
+//		type "js"
+//		classifier "untyped"
+//	}
+//	archives(compileEmccDebug.outputFile) {
+//		name archivesBaseName
+//		type "js"
+//		classifier "debug"
+//	}
+//        archives(compileEmccDebugUntyped.outputFile) {
+//                name archivesBaseName
+//                type "js"
+//                classifier "untyped-debug"
+//        }
 	archives(packJavaHarfbuzz) {
 		name archivesBaseName
 		type "harfbuzzJava"
