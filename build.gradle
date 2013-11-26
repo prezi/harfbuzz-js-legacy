@@ -168,19 +168,19 @@ class BuildHarfbuzzJava extends DefaultTask {
     List<File> inputFiles = [ ]
 
     @OutputFiles
-    List<File> outputFiles = [ project.file("swig/build/cpp/lib/harfbuzz_wrap.so"), project.file("swig/build/java/com/prezi/harfbuzz/harfbuzz.java")]
+    List<File> outputFiles = [  project.file("swig/build/java/com/prezi/harfbuzz/harfbuzz.java")]
 
     String host
 
 	@TaskAction
 	void doConfigure() {
-		def commandLine = "./build.java.sh"
+		def commandLine = "./build.swig.sh"
 
 		def proc = commandLine.execute()
 		proc.waitForProcessOutput(System.out, System.err)
 
 		if (proc.exitValue()) {
-			throw new RuntimeException("Java build failed")
+			throw new RuntimeException("Swig build failed")
 		}
 
 		for (outputFile in outputFiles) {
@@ -205,10 +205,6 @@ task packJavaHarfbuzz(type: Zip){
         include "**/*.java"
         include "**/*.class"
 
-    }
-
-    from fileTree("swig/build/cpp/lib"),{
-        include "*.so"
     }
 
     destinationDir = project.file("swig/build")
