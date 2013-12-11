@@ -39,8 +39,8 @@
 
 /* We need external help for these */
 
-#if 0
 
+#if 0
 
 #elif !defined(HB_NO_MT) && (defined(_WIN32) || defined(__CYGWIN__))
 
@@ -108,7 +108,7 @@ typedef unsigned int hb_atomic_int_t;
 
 
 #elif !defined(HB_NO_MT)
-
+#warning "FALLBACK MULTITHREAD"
 #define HB_ATOMIC_INT_NIL 1 /* Warn that fallback implementation is in use. */
 typedef volatile int hb_atomic_int_t;
 #define hb_atomic_int_add(AI, V)	(((AI) += (V)) - (V))
@@ -118,7 +118,7 @@ typedef volatile int hb_atomic_int_t;
 
 
 #else /* HB_NO_MT */
-
+#warning "NO MULTITHREAD"
 typedef int hb_atomic_int_t;
 #define hb_atomic_int_add(AI, V)	(((AI) += (V)) - (V))
 

@@ -87,6 +87,74 @@ hb_buffer_content_type_t_hb_buffer_content_type_t_get_type (void)
   return g_define_type_id__volatile;
 }
 
+inline static /* TODO(behdad) disable these for now until we fix them... */
+GType
+hb_buffer_flags_t_hb_buffer_flags_t_get_type (void)
+{
+  static volatile gsize g_define_type_id__volatile = 0;
+
+  if (g_once_init_enter (&g_define_type_id__volatile))
+    {
+      static const GEnumValue values[] = {
+        { HB_BUFFER_FLAGS_DEFAULT, "HB_BUFFER_FLAGS_DEFAULT", "flags-default" },
+        { HB_BUFFER_FLAG_BOT, "HB_BUFFER_FLAG_BOT", "flag-bot" },
+        { HB_BUFFER_FLAG_EOT, "HB_BUFFER_FLAG_EOT", "flag-eot" },
+        { HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES, "HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES", "flag-preserve-default-ignorables" },
+        { 0, NULL, NULL }
+      };
+      GType g_define_type_id =
+        g_enum_register_static (g_intern_static_string ("hb_buffer_flags_t"), values);
+      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
+    }
+
+  return g_define_type_id__volatile;
+}
+
+inline static /* TODO(behdad) disable these for now until we fix them... */
+GType
+hb_buffer_serialize_flags_t_hb_buffer_serialize_flags_t_get_type (void)
+{
+  static volatile gsize g_define_type_id__volatile = 0;
+
+  if (g_once_init_enter (&g_define_type_id__volatile))
+    {
+      static const GEnumValue values[] = {
+        { HB_BUFFER_SERIALIZE_FLAGS_DEFAULT, "HB_BUFFER_SERIALIZE_FLAGS_DEFAULT", "flags-default" },
+        { HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS, "HB_BUFFER_SERIALIZE_FLAG_NO_CLUSTERS", "flag-no-clusters" },
+        { HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS, "HB_BUFFER_SERIALIZE_FLAG_NO_POSITIONS", "flag-no-positions" },
+        { HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES, "HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES", "flag-no-glyph-names" },
+        { 0, NULL, NULL }
+      };
+      GType g_define_type_id =
+        g_enum_register_static (g_intern_static_string ("hb_buffer_serialize_flags_t"), values);
+      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
+    }
+
+  return g_define_type_id__volatile;
+}
+
+inline static /* TODO(behdad) disable these for now until we fix them... */
+GType
+hb_buffer_serialize_format_t_hb_buffer_serialize_format_t_get_type (void)
+{
+  static volatile gsize g_define_type_id__volatile = 0;
+
+  if (g_once_init_enter (&g_define_type_id__volatile))
+    {
+      static const GEnumValue values[] = {
+        { HB_BUFFER_SERIALIZE_FORMAT_TEXT, "HB_BUFFER_SERIALIZE_FORMAT_TEXT", "text" },
+        { HB_BUFFER_SERIALIZE_FORMAT_JSON, "HB_BUFFER_SERIALIZE_FORMAT_JSON", "json" },
+        { HB_BUFFER_SERIALIZE_FORMAT_INVALID, "HB_BUFFER_SERIALIZE_FORMAT_INVALID", "invalid" },
+        { 0, NULL, NULL }
+      };
+      GType g_define_type_id =
+        g_enum_register_static (g_intern_static_string ("hb_buffer_serialize_format_t"), values);
+      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
+    }
+
+  return g_define_type_id__volatile;
+}
+
 /* enumerations from "hb-common.h" */
 inline static /* TODO(behdad) disable these for now until we fix them... */
 GType
@@ -355,6 +423,31 @@ hb_unicode_combining_class_t_hb_unicode_combining_class_t_get_type (void)
       };
       GType g_define_type_id =
         g_enum_register_static (g_intern_static_string ("hb_unicode_combining_class_t"), values);
+      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
+    }
+
+  return g_define_type_id__volatile;
+}
+
+/* enumerations from "hb-ot-layout.h" */
+inline static /* TODO(behdad) disable these for now until we fix them... */
+GType
+hb_ot_layout_glyph_class_t_hb_ot_layout_glyph_class_t_get_type (void)
+{
+  static volatile gsize g_define_type_id__volatile = 0;
+
+  if (g_once_init_enter (&g_define_type_id__volatile))
+    {
+      static const GEnumValue values[] = {
+        { HB_OT_LAYOUT_GLYPH_CLASS_UNCLASSIFIED, "HB_OT_LAYOUT_GLYPH_CLASS_UNCLASSIFIED", "unclassified" },
+        { HB_OT_LAYOUT_GLYPH_CLASS_BASE_GLYPH, "HB_OT_LAYOUT_GLYPH_CLASS_BASE_GLYPH", "base-glyph" },
+        { HB_OT_LAYOUT_GLYPH_CLASS_LIGATURE, "HB_OT_LAYOUT_GLYPH_CLASS_LIGATURE", "ligature" },
+        { HB_OT_LAYOUT_GLYPH_CLASS_MARK, "HB_OT_LAYOUT_GLYPH_CLASS_MARK", "mark" },
+        { HB_OT_LAYOUT_GLYPH_CLASS_COMPONENT, "HB_OT_LAYOUT_GLYPH_CLASS_COMPONENT", "component" },
+        { 0, NULL, NULL }
+      };
+      GType g_define_type_id =
+        g_enum_register_static (g_intern_static_string ("hb_ot_layout_glyph_class_t"), values);
       g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
     }
 
