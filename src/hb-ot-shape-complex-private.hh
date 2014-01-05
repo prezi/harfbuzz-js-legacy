@@ -41,8 +41,10 @@
 
 enum hb_ot_shape_zero_width_marks_type_t {
   HB_OT_SHAPE_ZERO_WIDTH_MARKS_NONE,
-  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_UNICODE,
-  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_GDEF
+//  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_UNICODE_EARLY,
+  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_UNICODE_LATE,
+  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_GDEF_EARLY,
+  HB_OT_SHAPE_ZERO_WIDTH_MARKS_BY_GDEF_LATE
 };
 
 
@@ -159,6 +161,8 @@ hb_ot_shape_complex_categorize (const hb_ot_shape_planner_t *planner)
 
     /* Unicode-1.1 additions */
     case HB_SCRIPT_ARABIC:
+
+    /* Unicode-3.0 additions */
     case HB_SCRIPT_MONGOLIAN:
     case HB_SCRIPT_SYRIAC:
 
@@ -275,9 +279,6 @@ hb_ot_shape_complex_categorize (const hb_ot_shape_planner_t *planner)
     /* Unicode-3.0 additions */
     case HB_SCRIPT_SINHALA:
 
-    /* Unicode-4.1 additions */
-    case HB_SCRIPT_BUGINESE:
-
     /* Unicode-5.0 additions */
     case HB_SCRIPT_BALINESE:
 
@@ -332,6 +333,7 @@ hb_ot_shape_complex_categorize (const hb_ot_shape_planner_t *planner)
 	return &_hb_ot_complex_shaper_default;
 
     /* Unicode-4.1 additions */
+    case HB_SCRIPT_BUGINESE:
     case HB_SCRIPT_NEW_TAI_LUE:
 
     /* Unicode-5.1 additions */

@@ -79,6 +79,9 @@ static inline Type MIN (const Type &a, const Type &b) { return a < b ? a : b; }
 template <typename Type>
 static inline Type MAX (const Type &a, const Type &b) { return a > b ? a : b; }
 
+static inline unsigned int DIV_CEIL (const unsigned int a, unsigned int b)
+{ return (a + (b - 1)) / b; }
+
 
 #undef  ARRAY_LENGTH
 template <typename Type, unsigned int n>
@@ -321,14 +324,22 @@ struct hb_prealloced_array_t
   inline void pop (void)
   {
     len--;
-    /* TODO: shrink array if needed */
+  }
+
+  inline void remove (unsigned int i)
+  {
+     if (unlikely (i >= len))
+       return;
+     memmove (static_cast<void *> (&array[i]),
+	      static_cast<void *> (&array[i + 1]),
+	      (len - i - 1) * sizeof (Type));
+     len--;
   }
 
   inline void shrink (unsigned int l)
   {
      if (l < len)
        len = l;
-    /* TODO: shrink array if needed */
   }
 
   template <typename T>
@@ -376,7 +387,7 @@ struct hb_prealloced_array_t
   }
 };
 
-#define HB_AUTO_ARRAY_PREALLOCED 64
+#define HB_AUTO_ARRAY_PREALLOCED 16
 template <typename Type>
 struct hb_auto_array_t : hb_prealloced_array_t <Type, HB_AUTO_ARRAY_PREALLOCED>
 {
@@ -517,7 +528,7 @@ static inline uint32_t hb_uint32_swap (const uint32_t v)
 #define hb_be_uint32_get(v)	(uint32_t) ((v[0] << 24) + (v[1] << 16) + (v[2] << 8) + v[3])
 #define hb_be_uint32_eq(a,b)	(a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3])
 
-#define hb_be_uint24_put(v,V)	HB_STMT_START { v[0] = (V>>16); v[1] = (V>>8); v[2] (V); } HB_STMT_END
+#define hb_be_uint24_put(v,V)	HB_STMT_START { v[0] = (V>>16); v[1] = (V>>8); v[2] = (V); } HB_STMT_END
 #define hb_be_uint24_get(v)	(uint32_t) ((v[0] << 16) + (v[1] << 8) + v[2])
 #define hb_be_uint24_eq(a,b)	(a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
 
@@ -563,8 +574,8 @@ _hb_debug (unsigned int level,
   return level < max_level;
 }
 
-#define DEBUG_LEVEL(WHAT, LEVEL) (_hb_debug ((LEVEL), HB_DEBUG_##WHAT))
-#define DEBUG(WHAT) (DEBUG_LEVEL (WHAT, 0))
+#define DEBUG_LEVEL_ENABLED(WHAT, LEVEL) (_hb_debug ((LEVEL), HB_DEBUG_##WHAT))
+#define DEBUG_ENABLED(WHAT) (DEBUG_LEVEL_ENABLED (WHAT, 0))
 
 template <int max_level> static inline void
 _hb_debug_msg_va (const char *what,
@@ -595,7 +606,7 @@ _hb_debug_msg_va (const char *what,
 #define ULBAR	"\342\225\257"	/* U+256F BOX DRAWINGS LIGHT ARC UP AND LEFT */
 #define LBAR	"\342\225\264"	/* U+2574 BOX DRAWINGS LIGHT LEFT */
     static const char bars[] = VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR VBAR;
-    fprintf (stderr, "%2d %s" VRBAR "%s",
+    fprintf (stderr, "%2u %s" VRBAR "%s",
 	     level,
 	     bars + sizeof (bars) - 1 - MIN ((unsigned int) sizeof (bars), (unsigned int) (sizeof (VBAR) - 1) * level),
 	     level_dir ? (level_dir > 0 ? DLBAR : ULBAR) : LBAR);

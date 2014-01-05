@@ -33,7 +33,10 @@ struct output_buffer_t
   output_buffer_t (option_parser_t *parser)
 		  : options (parser,
 			     g_strjoinv ("/", (gchar**) hb_buffer_serialize_list_formats ())),
-		    format (parser) {}
+		    format (parser),
+		    gs (NULL),
+		    line_no (0),
+		    font (NULL) {}
 
   void init (const font_options_t *font_opts)
   {
@@ -57,7 +60,7 @@ struct output_buffer_t
 	output_format = HB_BUFFER_SERIALIZE_FORMAT_TEXT;
     }
 
-    unsigned int flags = HB_BUFFER_SERIALIZE_FLAGS_DEFAULT;
+    unsigned int flags = HB_BUFFER_SERIALIZE_FLAG_DEFAULT;
     if (!format.show_glyph_names)
       flags |= HB_BUFFER_SERIALIZE_FLAG_NO_GLYPH_NAMES;
     if (!format.show_clusters)

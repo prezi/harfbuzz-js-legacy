@@ -44,7 +44,7 @@ configurations {
 
 clean << {
 	if (file("Makefile").exists()) {
-		def proc = "emmake make clean".execute()
+		def proc = "make clean".execute()
 		proc.waitForProcessOutput(System.out, System.err)
 		if (proc.exitValue()) {
 			throw new RuntimeException("Emscripten clean failed")
@@ -123,23 +123,26 @@ task combineJsConnector(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
     dest = file("${buildDir}/post.js")
 }
 
-class ConfigureHarfbuzz extends DefaultTask {
+task configureHarfbuzz {
+	inputs.file "configure.ac"
+	outputs.file "config.h"
+	outputs.file "Makefile"
+	dependsOn downloadEmscripten
 
-    @InputFiles
-    List<File> inputFiles = [ project.file("configure.ac") ]
+	doLast {
+		def commandLine = [ "tools/emscripten/emconfigure", "./autogen.sh" ]
 
-    @OutputFiles
-    List<File> outputFiles = [ project.file("config.h"), project.file("Makefile") ]
+		commandLine += "--with-glib=no"
+		commandLine += "--with-gobject=no"
+		commandLine += "--with-cairo=no"
+		commandLine += "--with-icu=no"
+		commandLine += "--with-graphite2=no"
+		commandLine += "--with-freetype=no"
+		commandLine += "--with-uniscribe=no"
+		commandLine += "--with-coretext=no"
 
-    String host
-
-	@TaskAction
-	void doConfigure() {
-		def commandLine = "tools/emscripten/emconfigure ./autogen.sh"
-
-		if (host != null) {
-			commandLine += " --host " + host
-		}
+		// We need to do this to build shared libs
+		commandLine += [ "--host", "i386-linux" ]
 
 		def proc = commandLine.execute()
 		proc.waitForProcessOutput(System.out, System.err)
@@ -148,7 +151,7 @@ class ConfigureHarfbuzz extends DefaultTask {
 			throw new RuntimeException("Emscripten configuration failed")
 		}
 
-		for (outputFile in outputFiles) {
+		for (outputFile in outputs.getFiles()) {
 			if (!outputFile.exists()) {
 				throw new RuntimeException("Emscripten configuration didn't create required file: " + outputFile)
 			}
@@ -156,17 +159,11 @@ class ConfigureHarfbuzz extends DefaultTask {
 	}
 }
 
-task configureHarfbuzz(type: ConfigureHarfbuzz) {
-	dependsOn downloadEmscripten
-	// We need to do this to build shared libs
-	host = "i386-linux"
-}
-
 task makeHarfbuzz() {
 	dependsOn configureHarfbuzz
 
 	doLast {
-		def proc = "emmake make all-recursive".execute()
+		def proc = [ "tools/emscripten/emmake", "make", "all-recursive" ].execute()
 		proc.waitForProcessOutput(System.out, System.err)
 
 		if (proc.exitValue()) {
@@ -407,9 +404,9 @@ task testJs(type:Exec) {
 task buildAll {
 	dependsOn testJs
 	dependsOn compileEmccProduction
-	dependsOn compileEmccProductionUntyped
+	// dependsOn compileEmccProductionUntyped
 	dependsOn compileEmccDebug
-	dependsOn compileEmccDebugUntyped
+	// dependsOn compileEmccDebugUntyped
 }
 
 install {
@@ -428,19 +425,19 @@ artifacts {
 		name archivesBaseName
 		type "js"
 	}
-	archives(compileEmccProductionUntyped.outputFile) {
-		name archivesBaseName
-		type "js"
-		classifier "untyped"
-	}
+	// archives(compileEmccProductionUntyped.outputFile) {
+	// 	name archivesBaseName
+	// 	type "js"
+	// 	classifier "untyped"
+	// }
 	archives(compileEmccDebug.outputFile) {
 		name archivesBaseName
 		type "js"
 		classifier "debug"
 	}
-	archives(compileEmccDebugUntyped.outputFile) {
-		name archivesBaseName
-		type "js"
-		classifier "untyped-debug"
-	}
+	// archives(compileEmccDebugUntyped.outputFile) {
+	// 	name archivesBaseName
+	// 	type "js"
+	// 	classifier "untyped-debug"
+	// }
 }
