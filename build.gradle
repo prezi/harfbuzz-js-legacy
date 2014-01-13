@@ -20,6 +20,8 @@ buildscript {
 	dependencies {
 		classpath "com.prezi.gradle:gradle-coffee-plugin:1.0-SNAPSHOT"
 		classpath "com.prezi.gradle:gradle-prezi-plugin:1.0-SNAPSHOT"
+		classpath "com.prezi.gradle:gradle-haxe-plugin:1.2-SNAPSHOT"
+		classpath "com.prezi.spaghetti:gradle-spaghetti-plugin:1.0-SNAPSHOT"
 		classpath "com.eriwen:gradle-js-plugin:1.1"
 	}
 }
@@ -27,6 +29,8 @@ buildscript {
 apply plugin: "coffee"
 apply plugin: "prezi"
 apply plugin: "js"
+apply plugin: "haxe"
+apply plugin: "spaghetti"
 
 // JS plugin adds mavenCentral() -- let's remove it
 project.repositories.remove(project.repositories.findByName("MavenRepo"))
@@ -40,6 +44,7 @@ repositories {
 
 configurations {
 	emcc
+	haxelibs
 }
 
 clean << {
@@ -126,7 +131,6 @@ task combineJsConnector(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
 task configureHarfbuzz {
 	inputs.file "configure.ac"
 	outputs.file "config.h"
-	outputs.file "Makefile"
 	dependsOn downloadEmscripten
 
 	doLast {
@@ -401,12 +405,71 @@ task testJs(type:Exec) {
 		"test/js-connector/harfbuzzTest.coffee"
 }
 
+// Spaghetti module
+
+dependencies {
+	haxelibs group: "haxelib3", name: "hamcrest", version: "1.2.1"
+	haxelibs group: "haxelib3", name: "mconsole", version: "1.4.0"
+	haxelibs group: "haxelib3", name: "mcover", version: "2.0.3"
+	haxelibs group: "haxelib3", name: "mlib", version: "2.0.2"
+	haxelibs group: "haxelib3", name: "munit", version: "2.0.2"
+	haxelibs group: "haxelib3", name: "tink_core", version: "1.0.0-alpha"
+	haxelibs group: "haxelib3", name: "tink_macro", version: "0.0.0-alpha"
+	haxelibs group: "haxelib3", name: "mockatoo", version: "2.1.0"
+}
+
+spaghetti {
+	platform "haxe"
+	definition "spaghetti/src/HarfBuzz.module"
+}
+
+task generateHeaders(type: com.prezi.spaghetti.gradle.GenerateModuleHeaders) {
+}
+
+def harfbuzzDirectory = file("$buildDir/spaghetti-harfbuzz")
+task copyHarfBuzz(type: Copy) {
+	def harfbuzzTask = compileEmccDebug
+
+	from harfbuzzTask.outputs.files
+	into harfbuzzDirectory
+	rename { it.replace("-debug", "") }
+}
+
+task compileJavaScript(type: com.prezi.gradle.haxe.CompileHaxe) {
+	dependsOn generateHeaders
+	dependsOn copyHarfBuzz
+	configuration configurations.haxelibs
+	targetPlatform "js"
+	source harfbuzzDirectory
+	source "$buildDir/spaghetti/module-headers"
+	source "spaghetti/src/common"
+	source "spaghetti/src/js"
+	flag "--no-traces"
+	include "prezi.text.harfbuzz"
+	include "prezi.text.otf"
+}
+
+task testJavaScript(type: com.prezi.gradle.haxe.MUnit) {
+	test compileJavaScript
+	source "spaghetti/test/common"
+	source "spaghetti/test/js"
+	embedAll "spaghetti/test-resources"
+	flag "-D test"
+}
+
+task bundleModule(type: com.prezi.spaghetti.gradle.BundleModule) {
+	dependsOn compileJavaScript
+	dependsOn testJavaScript
+	inputFile compileJavaScript.outputFile
+}
+
 task buildAll {
 	dependsOn testJs
 	dependsOn compileEmccProduction
 	// dependsOn compileEmccProductionUntyped
 	dependsOn compileEmccDebug
 	// dependsOn compileEmccDebugUntyped
+	dependsOn bundleModule
 }
 
 install {
@@ -440,4 +503,10 @@ artifacts {
 	// 	type "js"
 	// 	classifier "untyped-debug"
 	// }
+	archives(bundleModule.outputFile) {
+		builtBy bundleModule
+	}
+	modules(bundleModule.outputFile) {
+		builtBy bundleModule
+	}
 }

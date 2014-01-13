@@ -1,0 +1,57 @@
+module prezi.text.harfbuzz.HarfBuzz
+
+extern interface UnicodeString
+
+struct Shape
+{
+	int codepoint
+	int cluster
+	int xAdvance
+	int yAdvance
+	int xOffset
+	int yOffset
+}
+
+/**
+ * If a font needs correction for it's line metrics, the overrides
+ * can be supplied in an OverrideLineMetrics. The fields of this
+ * typedef contain relative values that will be multiplied by
+ * the loaded font's units/em value.
+ * <p>
+ * So if unitsPerEm = 1000, ascent = 0.75 then the final overrode
+ * ascent of the font will be 750.
+ */
+struct OverrideLineMetrics 
+{
+	float ascent
+	float descent
+	float lineGap
+}
+
+struct FontInfo 
+{
+	string id
+	int unitsPerEm
+	int ascent
+	int descent
+	int lineGap
+	float italicAngle
+	int underlinePosition 
+	int underlineThickness	
+}
+
+interface HarfBuzzFont
+{
+	string getId()
+	FontInfo info()
+	Shape[] shape(UnicodeString text, string[] features)
+	int[] outline(int glyphCode)
+	void destroy()
+}
+
+interface HarfBuzzBackend {
+	HarfBuzzFont createFont(string fontId, any fileData, OverrideLineMetrics overrideLineMetrics)
+	string version()
+}
+
+HarfBuzzBackend getHarfBuzzBackend()
