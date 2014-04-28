@@ -29,7 +29,7 @@ if [ ! -x "./configure" ]; then
     ./autogen.sh
 fi
 
-export LDFLAGS="-pipe -Os -no-cpp-precomp -fPIC -fno-strict-aliasing"
+export LDFLAGS="-pipe -Os -fPIC -fno-strict-aliasing"
 export CFLAGS=${LDFLAGS}
 export CXXFLAGS=${LDFLAGS}
 
@@ -51,4 +51,4 @@ echo "JNIHEADERS=${JNIHEADERS}"
 
 echo "### compile wrapper"
 CFLAGS="${CFLAGS} $(pkg-config --cflags --libs glib-2.0)"
-gcc ${CFLAGS} -I ./src -I $JNIHEADERS  -I/usr/local/Cellar/glib/2.38.2/include/glib-2.0 -I/usr/local/Cellar/glib/2.38.2/lib/glib-2.0/include -pipe -Os -no-cpp-precomp -shared -o swig/build/cpp/lib/harfbuzz_wrap.so swig/build/cpp/harfbuzz_wrap.c  build/harfbuzz.a -Bstatic
+gcc ${CFLAGS} -I ./src -I $JNIHEADERS  -I/usr/local/Cellar/glib/2.38.2/include/glib-2.0 -I/usr/local/Cellar/glib/2.38.2/lib/glib-2.0/include -pipe -Os  -shared -o swig/build/cpp/lib/harfbuzz_wrap.so swig/build/cpp/harfbuzz_wrap.c  build/harfbuzz.a -Bstatic
