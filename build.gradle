@@ -196,20 +196,24 @@ task buildHarfbuzzJava(type: BuildHarfbuzzJava) {
 
 
 
-task packJavaHarfbuzz(type: Zip){
+task packJavaHarfbuzz(type: Jar){
     baseName = "harfbuzzJava"
     dependsOn buildHarfbuzzJava
-
-
     from fileTree("swig/build/java"),{
-        include "**/*.java"
         include "**/*.class"
-
     }
-
     destinationDir = project.file("swig/build")
 }
 
+task packJavaHarfbuzzSources(type: Jar){
+    baseName = "harfbuzzJava"
+    dependsOn buildHarfbuzzJava
+    from fileTree("swig/build/java"),{
+        include "**/*.java"
+    }
+    classifier = "sources"
+    destinationDir = project.file("swig/build")
+}
 
 task makeHarfbuzz() {
 	dependsOn configureHarfbuzz
@@ -475,28 +479,33 @@ uploadArchives {
 }
 
 artifacts {
-//	archives(compileEmccProduction.outputFile) {
-//		name archivesBaseName
-//		type "js"
-//	}
-//	archives(compileEmccProductionUntyped.outputFile) {
-//		name archivesBaseName
-//		type "js"
-//		classifier "untyped"
-//	}
-//	archives(compileEmccDebug.outputFile) {
-//		name archivesBaseName
-//		type "js"
-//		classifier "debug"
-//	}
-//        archives(compileEmccDebugUntyped.outputFile) {
-//                name archivesBaseName
-//                type "js"
-//                classifier "untyped-debug"
-//        }
+	archives(compileEmccProduction.outputFile) {
+		name archivesBaseName
+		type "js"
+	}
+	archives(compileEmccProductionUntyped.outputFile) {
+		name archivesBaseName
+		type "js"
+		classifier "untyped"
+	}
+	archives(compileEmccDebug.outputFile) {
+		name archivesBaseName
+		type "js"
+		classifier "debug"
+	}
+        archives(compileEmccDebugUntyped.outputFile) {
+                name archivesBaseName
+                type "js"
+                classifier "untyped-debug"
+        }
 	archives(packJavaHarfbuzz) {
 		name archivesBaseName
 		type "harfbuzzJava"
 		classifier "java"
 	}
+        archives(packJavaHarfbuzzSources) {
+                name archivesBaseName
+                type "harfbuzzJava"
+                classifier "java-sources"
+        }
 }
